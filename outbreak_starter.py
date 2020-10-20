@@ -96,7 +96,7 @@ def model_outbreak(N, s, adj_list):
         prob_infect[source] = 1
     
     # Number of simulations
-    for k in range(100):
+    for _ in range(100):
 
         # Generate infection edges
         edges = [ [] for _ in range(N + 1) ]
