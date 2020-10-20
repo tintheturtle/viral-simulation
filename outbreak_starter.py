@@ -87,53 +87,47 @@ def model_outbreak(N, s, adj_list):
     
     # probability = [0.1, 0.3, 0.5, 0.7]
 
+    p = 0.7                                     # Probability of Infection
+
     # Initialize variables for experiments
-    edges = [ [] for _ in range(N + 1) ]        # List of edges
-    sources = s                                 # Source of infection
-    edges[ N ] = s                              # Root of all infection
-    runs = []
+    runs = []                                   # Array of infection days
 
-    p = 0.1
-
-    allSources = [False] * N
+    for source in s:
+        prob_infect[source] = 1
     
-    # Duration of infection spread
+    # Number of simulations
     for k in range(100):
 
         # Generate infection edges
-        added = []
-        for i in sources:
+        edges = [ [] for _ in range(N + 1) ]
+        edges[ N ] = s
+        for i in range(len(adj_list)):
             for j in range(len(adj_list[i])):
                 active = random.random()
                 if active <= p:
-                    if adj_list[i][j] not in edges[i]:
-                        edges[i].append(adj_list[i][j])
-                    if not allSources[adj_list[i][j]]:
-                        added.append(adj_list[i][j])
-                        allSources[adj_list[i][j]] = True
-
-                    # if prob_infect[adj_list[i][j]] == 0:
-                    #     prob_infect[adj_list[i][j]] = p
-                    # else:
-                    #     prob_infect[adj_list[i][j]] *= p
-
-        # Update new sources of infection
-        sources = added
+                    edges[i].append(adj_list[i][j])
 
         # Run BFS to retrieve infected nodes 
         infections = BFS(N + 1, N, edges)
         runs.append(infections)
         
-    # Update probabilities infected and average days
+    # Calculate average days
     for col in range(len(runs[0]) - 1):
         day = 0
         divider = 0
-        for row in range(len(runs)):
+        for row in range(len(runs) - 1):
             if runs[row][col] != 'x':
                 day += runs[row][col]
                 divider += 1
-        if day != 0:
-            avg_day[col] = day / divider
+        prob_infect[col] = divider 
+        if divider != 0:
+            avg_day[col] = int( day / divider ) 
+
+    # Calculate probabilities
+    for i in range(len(prob_infect)):
+        if prob_infect[i] != 0:
+            prob_infect[i] = float(prob_infect[i] / 100)
+
     return prob_infect, avg_day
 
 
